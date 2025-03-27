@@ -1,2 +1,2 @@
-# sql_spaced_repeatition_system
+# sql-spaced-repeatition-system
 streamlit app to review SQL questions
