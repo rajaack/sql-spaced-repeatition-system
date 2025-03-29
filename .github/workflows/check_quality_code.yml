@@ -1,0 +1,26 @@
+name: "Check quality code"
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: "Install uv"
+      uses: astral-sh/setup-uv@v5
+    - name: "Set up Python"
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: "pyproject.toml"
+    - name: "Install the project"
+      run: uv sync --all-extras --dev
+    - name: "Format code with Black"
+      run: |
+        uv run black --check --verbose .
+    - name: "Sort imports with isort"
+      run: |
+        uv run isort $(git ls-files '*.py')
+    - name: "Analysing the code with pylint"
+      run: |
+        uv run pylint $(git ls-files '*.py')
