@@ -6,33 +6,35 @@ import duckdb
 import pandas as pd
 import streamlit as st
 
-st.write("""
+st.write(
+    """
 SQL SRS
 Spaced Repetition System SQL practice
-""")
+"""
+)
 
-CSV = '''
+CSV = """
 beverage,price
 orange juice,2.5
 Expresso,2
 Tea,3
-'''
+"""
 beverages = pd.read_csv(io.StringIO(CSV))
 
-CSV2 = '''
+CSV2 = """
 food_item,food_price
 cookie juice,2.5
 chocolatine,2
 muffin,3
-'''
+"""
 food_items = pd.read_csv(io.StringIO(CSV2))
 
-ANSWER = """
+ANSWER_STR = """
 SELECT * FROM beverages
 CROSS JOIN food_items
 """
 
-solution = duckdb.sql(ANSWER).df()
+solution_df = duckdb.sql(ANSWER_STR).df()
 
 with st.sidebar:
     option = st.selectbox(
@@ -44,13 +46,20 @@ with st.sidebar:
 
     st.write(f"You selected : {option}")
 
-data = {"a": [1,2,3], "b": [4,5,6]}
+data = {"a": [1, 2, 3], "b": [4, 5, 6]}
 
 st.header("enter your code:")
 query = st.text_area(label="votre code SQL ici", key="user_input")
 if query:
     result = duckdb.sql(query).df()
     st.dataframe(result)
+
+    try:
+        result = result[solution_df.columns]
+        result.compare(solution_df)
+        st.markdown("**:green[Bonne réponse]**")
+    except KeyError:
+        st.error("Some columns are missing!")
 
 tab2, tab3 = st.tabs(["Tables", "Solution"])
 
@@ -60,7 +69,7 @@ with tab2:
     st.write("table: food_items")
     st.dataframe(food_items)
     st.write("expected:")
-    st.dataframe(solution)
+    st.dataframe(solution_df)
 
 with tab3:
-    st.write(ANSWER)
+    st.write(ANSWER_STR)
