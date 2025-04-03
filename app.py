@@ -1,22 +1,39 @@
 # pylint: disable=missing-module-docstring
+import subprocess
+import sys
+from pathlib import Path
 
 import duckdb
 import streamlit as st
+from streamlit.logger import get_logger
 
-st.write(
+st.text(
     """
 SQL SRS
 Spaced Repetition System SQL practice
 """
 )
 
-con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
+logger = get_logger(__name__)
+
+path_db_file = Path("data/exercises_sql_tables.duckdb")
+
+# create folder if not exists
+if not path_db_file.parent.exists():
+    logger.info("creating folder data")
+path_db_file.parent.mkdir(parents=True, exist_ok=True)
+
+if not path_db_file.exists():
+    logger.info("creation a new database")
+    subprocess.run([sys.executable, "init_db.py"])
+
+con = duckdb.connect(database=path_db_file, read_only=False)
 
 with st.sidebar:
     theme = st.selectbox(
         "What would you like to review?",
         ("cross_joins", "GroupBy", "window_functions"),
-        index=None,
+        index=0,
         placeholder="Select a theme ...",
     )
 
