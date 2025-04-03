@@ -1,16 +1,32 @@
 # pylint: disable=missing-module-docstring
 
+from pathlib import Path
+
 import duckdb
 import streamlit as st
+from streamlit.logger import get_logger
+from init_db import init_db
 
-st.write(
+st.text(
     """
 SQL SRS
 Spaced Repetition System SQL practice
 """
 )
 
-con = duckdb.connect(database="data/exercises_sql_tables.duckdb", read_only=False)
+logger = get_logger(__name__)
+
+path_db_file = Path("data/exercises_sql_tables.duckdb")
+
+if not path_db_file.parent.exists():
+    logger.info("creating folder %s", path_db_file.parent)
+    path_db_file.parent.mkdir(parents=True)
+
+if not path_db_file.exists():
+    logger.info("creation a new database")
+    init_db(path_db_file)
+
+con = duckdb.connect(database=path_db_file, read_only=True)
 
 with st.sidebar:
     theme = st.selectbox(
@@ -21,7 +37,7 @@ with st.sidebar:
     )
 
     exercise = (
-        con.execute(f"SELECT * FROM memory_state WHERE theme = '{theme}'")
+        con.sql(f"SELECT * FROM memory_state WHERE theme = '{theme}'")
         .df()
         .sort_values("last_reviewed")
         .reset_index()
@@ -39,7 +55,7 @@ data = {"a": [1, 2, 3], "b": [4, 5, 6]}
 st.header("enter your code:")
 query = st.text_area(label="votre code SQL ici", key="user_input")
 if query:
-    result = con.execute(query).df()
+    result = con.sql(query).df()
 
     try:
         result = result[solution_df.columns]
