@@ -36,8 +36,13 @@ with st.sidebar:
         placeholder="Select a theme ...",
     )
 
+    select_exercise_query = "SELECT * FROM memory_state"
+    if theme:
+        st.write(f"You selected {theme}")
+        select_exercise_query += f" WHERE theme = '{theme}'"
+
     exercise = (
-        con.sql(f"SELECT * FROM memory_state WHERE theme = '{theme}'")
+        con.sql(select_exercise_query)
         .df()
         .sort_values("last_reviewed")
         .reset_index()
