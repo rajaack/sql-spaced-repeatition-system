@@ -37,7 +37,7 @@ with st.sidebar:
     )
 
     exercise = (
-        con.execute(f"SELECT * FROM memory_state WHERE theme = '{theme}'")
+        con.sql(f"SELECT * FROM memory_state WHERE theme = '{theme}'")
         .df()
         .sort_values("last_reviewed")
         .reset_index()
@@ -55,7 +55,7 @@ data = {"a": [1, 2, 3], "b": [4, 5, 6]}
 st.header("enter your code:")
 query = st.text_area(label="votre code SQL ici", key="user_input")
 if query:
-    result = con.execute(query).df()
+    result = con.sql(query).df()
 
     try:
         result = result[solution_df.columns]

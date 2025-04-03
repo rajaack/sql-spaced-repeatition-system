@@ -67,8 +67,7 @@ def init_db(path_db_file: Path):
     """
     dataframes["trademarks"] = pd.read_csv(io.StringIO(csv))
 
-    con = duckdb.connect(database=path_db_file, read_only=False)
-    for df_name, df in dataframes.items():
-        logger.info("Creating table %s", df_name)
-        con.execute(f"CREATE TABLE IF NOT EXISTS {df_name} AS SELECT * FROM df")
-    con.close()
+    with duckdb.connect(database=path_db_file, read_only=False) as con:
+        for df_name, df in dataframes.items():
+            logger.info("Creating table %s", df_name)
+            con.execute(f"CREATE TABLE IF NOT EXISTS {df_name} AS SELECT * FROM df")
