@@ -3,10 +3,10 @@
 
 import io
 from pathlib import Path
-from streamlit.logger import get_logger
 
 import duckdb
 import pandas as pd
+from streamlit.logger import get_logger
 
 logger = get_logger(__name__)
 

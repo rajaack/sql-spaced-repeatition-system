@@ -5,6 +5,7 @@ from pathlib import Path
 import duckdb
 import streamlit as st
 from streamlit.logger import get_logger
+
 from init_db import init_db
 
 st.text(
@@ -29,18 +30,23 @@ if not path_db_file.exists():
 con = duckdb.connect(database=path_db_file, read_only=True)
 
 with st.sidebar:
+    distinct_available_themes = (
+        con.sql("SELECT DISTINCT theme FROM memory_state").df().values
+    )
     theme = st.selectbox(
         "What would you like to review?",
-        ("cross_joins", "GroupBy", "window_functions"),
+        distinct_available_themes,
         index=None,
         placeholder="Select a theme ...",
     )
 
+    SELECT_EXERCISE_QUERY = "SELECT * FROM memory_state"
+    if theme:
+        st.write(f"You selected {theme}")
+        SELECT_EXERCISE_QUERY += f" WHERE theme = '{theme}'"
+
     exercise = (
-        con.sql(f"SELECT * FROM memory_state WHERE theme = '{theme}'")
-        .df()
-        .sort_values("last_reviewed")
-        .reset_index()
+        con.sql(SELECT_EXERCISE_QUERY).df().sort_values("last_reviewed").reset_index()
     )
     st.write(exercise)
 
@@ -48,7 +54,7 @@ exercise_name = exercise.loc[0, "exercise_name"]
 with open(f"answers/{exercise_name}.sql", "r", encoding="utf-8") as f:
     answer = f.read()
 
-solution_df = con.execute(answer).df()
+solution_df = con.sql(answer).df()
 
 data = {"a": [1, 2, 3], "b": [4, 5, 6]}
 
@@ -78,7 +84,7 @@ with tab2:
     exercise_tables = exercise.loc[0, "tables"]
     for table in exercise_tables:
         st.write(f"table: {table}")
-        df_table = con.execute(f"SELECT * FROM {table}").df()
+        df_table = con.sql(f"SELECT * FROM {table}").df()
         st.dataframe(df_table)
 
 with tab3:
