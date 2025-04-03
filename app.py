@@ -5,6 +5,7 @@ from pathlib import Path
 import duckdb
 import streamlit as st
 from streamlit.logger import get_logger
+
 from init_db import init_db
 
 st.text(
@@ -29,7 +30,9 @@ if not path_db_file.exists():
 con = duckdb.connect(database=path_db_file, read_only=True)
 
 with st.sidebar:
-    distinct_available_themes = con.sql("SELECT DISTINCT theme FROM memory_state").df().values
+    distinct_available_themes = (
+        con.sql("SELECT DISTINCT theme FROM memory_state").df().values
+    )
     theme = st.selectbox(
         "What would you like to review?",
         distinct_available_themes,
@@ -43,10 +46,7 @@ with st.sidebar:
         select_exercise_query += f" WHERE theme = '{theme}'"
 
     exercise = (
-        con.sql(select_exercise_query)
-        .df()
-        .sort_values("last_reviewed")
-        .reset_index()
+        con.sql(select_exercise_query).df().sort_values("last_reviewed").reset_index()
     )
     st.write(exercise)
 
