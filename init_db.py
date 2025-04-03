@@ -17,8 +17,16 @@ def init_db(path_db_file: Path):
     :param path_db_file:
     :return:
     """
-    dataframes = {}
+    dataframes = create_dataframes_for_exercises()
 
+    with duckdb.connect(database=path_db_file, read_only=False) as con:
+        for df_name, df in dataframes.items():
+            logger.info("Creating table %s", df_name)
+            con.execute(f"CREATE TABLE IF NOT EXISTS {df_name} AS SELECT * FROM df")
+
+
+def create_dataframes_for_exercises():
+    dataframes = {}
     # ------------------------------------------------------------
     # EXERCISES LIST
     # ------------------------------------------------------------
@@ -29,7 +37,6 @@ def init_db(path_db_file: Path):
         "last_reviewed": ["1980-01-01", "1970-01-01"],
     }
     dataframes["memory_state"] = pd.DataFrame(data)
-
     # ------------------------------------------------------------
     # CROSS JOIN EXERCISES
     # ------------------------------------------------------------
@@ -40,7 +47,6 @@ def init_db(path_db_file: Path):
     Tea,3
     """
     dataframes["beverages"] = pd.read_csv(io.StringIO(csv))
-
     csv = """
     food_item,food_price
     cookie juice,2.5
@@ -48,7 +54,6 @@ def init_db(path_db_file: Path):
     muffin,3
     """
     dataframes["food_items"] = pd.read_csv(io.StringIO(csv))
-
     csv = """
     size
     XS
@@ -57,7 +62,6 @@ def init_db(path_db_file: Path):
     XL
     """
     dataframes["sizes"] = pd.read_csv(io.StringIO(csv))
-
     csv = """
     trademark
     Nike
@@ -66,8 +70,4 @@ def init_db(path_db_file: Path):
     Lewis
     """
     dataframes["trademarks"] = pd.read_csv(io.StringIO(csv))
-
-    with duckdb.connect(database=path_db_file, read_only=False) as con:
-        for df_name, df in dataframes.items():
-            logger.info("Creating table %s", df_name)
-            con.execute(f"CREATE TABLE IF NOT EXISTS {df_name} AS SELECT * FROM df")
+    return dataframes
