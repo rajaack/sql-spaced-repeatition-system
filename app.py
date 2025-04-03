@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 path_db_file = Path("data/exercises_sql_tables.duckdb")
 
 if not path_db_file.parent.exists():
-    logger.info(f"creating folder {path_db_file.parent}")
+    logger.info("creating folder %s", path_db_file.parent)
     path_db_file.parent.mkdir(parents=True)
 
 if not path_db_file.exists():
