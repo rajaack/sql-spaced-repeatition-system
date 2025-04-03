@@ -1,17 +1,23 @@
-"""
-INITIALISE TABLES FOR SQL QUESTIONS
-memory_state : manage tables and contains info user
-"""
+# pylint: disable=missing-module-docstring
 
 import io
 from pathlib import Path
+from streamlit.logger import get_logger
 
 import duckdb
 import pandas as pd
 
-def init_db(path_db_file: Path):
+logger = get_logger(__name__)
 
-    con = duckdb.connect(database=path_db_file, read_only=False)
+
+def init_db(path_db_file: Path):
+    """
+    INITIALISE TABLES FOR SQL QUESTIONS
+    memory_state : manage tables and contains info user
+    :param path_db_file:
+    :return:
+    """
+    dataframes = {}
 
     # ------------------------------------------------------------
     # EXERCISES LIST
@@ -22,48 +28,47 @@ def init_db(path_db_file: Path):
         "tables": [["beverages", "food_items"], ["sizes", "trademarks"]],
         "last_reviewed": ["1980-01-01", "1970-01-01"],
     }
-    memory_state_df = pd.DataFrame(data)
-    con.execute("CREATE TABLE IF NOT EXISTS memory_state AS SELECT * FROM memory_state_df")
+    dataframes["memory_state"] = pd.DataFrame(data)
 
     # ------------------------------------------------------------
     # CROSS JOIN EXERCISES
     # ------------------------------------------------------------
-    CSV = """
+    csv = """
     beverage,price
     orange juice,2.5
     Expresso,2
     Tea,3
     """
-    beverages = pd.read_csv(io.StringIO(CSV))
-    con.execute("CREATE TABLE IF NOT EXISTS beverages AS SELECT * FROM beverages")
+    dataframes["beverages"] = pd.read_csv(io.StringIO(csv))
 
-    CSV2 = """
+    csv = """
     food_item,food_price
     cookie juice,2.5
     chocolatine,2
     muffin,3
     """
-    food_items = pd.read_csv(io.StringIO(CSV2))
-    con.execute("CREATE TABLE IF NOT EXISTS food_items AS SELECT * FROM food_items")
+    dataframes["food_items"] = pd.read_csv(io.StringIO(csv))
 
-    CSV3 = """
+    csv = """
     size
     XS
     M
     L
     XL
     """
-    sizes = pd.read_csv(io.StringIO(CSV3))
-    con.execute("CREATE TABLE IF NOT EXISTS sizes AS SELECT * FROM sizes")
+    dataframes["sizes"] = pd.read_csv(io.StringIO(csv))
 
-    CSV4 = """
+    csv = """
     trademark
     Nike
     Asphalte
     Abercrombie
     Lewis
     """
-    trademarks = pd.read_csv(io.StringIO(CSV4))
-    con.execute("CREATE TABLE IF NOT EXISTS trademarks AS SELECT * FROM trademarks")
+    dataframes["trademarks"] = pd.read_csv(io.StringIO(csv))
 
+    con = duckdb.connect(database=path_db_file, read_only=False)
+    for df_name, df in dataframes.items():
+        logger.info("Creating table %s", df_name)
+        con.execute(f"CREATE TABLE IF NOT EXISTS {df_name} AS SELECT * FROM df")
     con.close()
