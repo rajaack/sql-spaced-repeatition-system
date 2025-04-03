@@ -1,4 +1,5 @@
 # pylint: disable=missing-module-docstring
+# pylint: disable=unused-variable
 
 import io
 from pathlib import Path
@@ -26,6 +27,10 @@ def init_db(path_db_file: Path):
 
 
 def create_dataframes_for_exercises():
+    """
+
+    :return:
+    """
     dataframes = {}
     # ------------------------------------------------------------
     # EXERCISES LIST
