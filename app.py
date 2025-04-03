@@ -32,7 +32,7 @@ with st.sidebar:
     theme = st.selectbox(
         "What would you like to review?",
         ("cross_joins", "GroupBy", "window_functions"),
-        index=0,
+        index=None,
         placeholder="Select a theme ...",
     )
 
