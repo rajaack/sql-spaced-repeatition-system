@@ -29,9 +29,10 @@ if not path_db_file.exists():
 con = duckdb.connect(database=path_db_file, read_only=True)
 
 with st.sidebar:
+    distinct_available_themes = con.sql("SELECT DISTINCT theme FROM memory_state").df().values
     theme = st.selectbox(
         "What would you like to review?",
-        ("cross_joins", "GroupBy", "window_functions"),
+        distinct_available_themes,
         index=None,
         placeholder="Select a theme ...",
     )
