@@ -54,7 +54,7 @@ exercise_name = exercise.loc[0, "exercise_name"]
 with open(f"answers/{exercise_name}.sql", "r", encoding="utf-8") as f:
     answer = f.read()
 
-solution_df = con.execute(answer).df()
+solution_df = con.sql(answer).df()
 
 data = {"a": [1, 2, 3], "b": [4, 5, 6]}
 
@@ -84,7 +84,7 @@ with tab2:
     exercise_tables = exercise.loc[0, "tables"]
     for table in exercise_tables:
         st.write(f"table: {table}")
-        df_table = con.execute(f"SELECT * FROM {table}").df()
+        df_table = con.sql(f"SELECT * FROM {table}").df()
         st.dataframe(df_table)
 
 with tab3:
