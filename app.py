@@ -1,11 +1,11 @@
 # pylint: disable=missing-module-docstring
-import subprocess
-import sys
+
 from pathlib import Path
 
 import duckdb
 import streamlit as st
 from streamlit.logger import get_logger
+from init_db import init_db
 
 st.text(
     """
@@ -18,16 +18,15 @@ logger = get_logger(__name__)
 
 path_db_file = Path("data/exercises_sql_tables.duckdb")
 
-# create folder if not exists
 if not path_db_file.parent.exists():
-    logger.info("creating folder data")
-path_db_file.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"creating folder {path_db_file.parent}")
+    path_db_file.parent.mkdir(parents=True)
 
 if not path_db_file.exists():
     logger.info("creation a new database")
-    subprocess.run([sys.executable, "init_db.py"])
+    init_db(path_db_file)
 
-con = duckdb.connect(database=path_db_file, read_only=False)
+con = duckdb.connect(database=path_db_file, read_only=True)
 
 with st.sidebar:
     theme = st.selectbox(
