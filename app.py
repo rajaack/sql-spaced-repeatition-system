@@ -85,7 +85,7 @@ path_db_file = Path("data/exercises_sql_tables.duckdb")
 
 init_db(path_db_file)
 
-con = duckdb.connect(database=path_db_file, read_only=True)
+con = duckdb.connect(database=path_db_file, read_only=False)
 
 exercise = return_old_review_exercise_for_theme_selected()
 
