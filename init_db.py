@@ -18,12 +18,27 @@ def init_db(path_db_file: Path):
     :param path_db_file:
     :return:
     """
-    dataframes = create_dataframes_for_exercises()
 
-    with duckdb.connect(database=path_db_file, read_only=False) as con:
-        for df_name, df in dataframes.items():
-            logger.info("Creating table %s", df_name)
-            con.execute(f"CREATE TABLE IF NOT EXISTS {df_name} AS SELECT * FROM df")
+    create_db_folder_if_not_exists(path_db_file.parent)
+
+    if not path_db_file.exists():
+        logger.info("creation a new database")
+        dataframes = create_dataframes_for_exercises()
+
+        with duckdb.connect(database=path_db_file, read_only=False) as con:
+            for df_name, df in dataframes.items():
+                logger.info("Creating table %s", df_name)
+                con.execute(f"CREATE TABLE IF NOT EXISTS {df_name} AS SELECT * FROM df")
+
+
+def create_db_folder_if_not_exists(path_db_parent: Path) -> None:
+    """
+
+    :param path_db_parent: path of the folder containing the database file
+    """
+    if not path_db_parent.exists():
+        logger.info("creating folder %s", path_db_parent)
+        path_db_parent.mkdir(parents=True)
 
 
 def create_dataframes_for_exercises():
